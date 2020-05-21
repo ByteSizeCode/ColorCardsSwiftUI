@@ -1,21 +1,37 @@
-////
-////  ContentView.swift
-////  Cards
-////
-////  Created by Isaac Raval on 5/19/20.
-////  Copyright © 2020 Isaac Raval. All rights reserved.
-////
+//
+//  ContentView.swift
+//  Cards
+//
+//  Created by Isaac Raval on 5/19/20.
+//  Copyright © 2020 Isaac Raval. All rights reserved.
+//
 
 import SwiftUI
 
 struct ContentView: View {
+    @State var allMainColors:[Color] = [.red, .blue, .black, .orange, .yellow, .green, .purple, .gray, .white]
+    @State var lastCardColor = Color.clear; @State var newCardColor = Color.clear
+    @State var colors: [Color] = [.red, .blue, .green, .yellow]
     var body: some View {
-        VStack {
-            VStack {
-                CardView()
+            HStack {
+                Button(action:{
+                    //Avoid duplicating the same color twice in a row
+                    self.newCardColor = self.allMainColors.randomElement()!
+                    while(self.newCardColor == self.lastCardColor) {
+                        self.newCardColor = self.allMainColors.randomElement()!
+                    };self.lastCardColor = self.newCardColor
+                    
+                    self.colors.append(self.newCardColor) //insert at front
+                    /* self.colors.insert(self.newCardColor.randomElement()!, at: 0) //insert at back */
+                }) {
+                    Text("+")
+                }.offset(x: 730, y: -260)
+                VStack {
+                    CardView(colors: self.$colors)
+                }
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .position(x: 370, y: 300)
     }
 }
 
@@ -24,18 +40,18 @@ struct CardView: View {
     @State var dragging:Bool = false
     @State var tapped:Bool = false
     @State var tappedLocation:Int = -1
-    @State var colors: [Color] = [.red, .blue, .green, .yellow, .orange, .pink, .white]
+    @Binding var colors: [Color]
     @State var locationDragged:Int = -1
     var body: some View {
         GeometryReader { reader in
             ZStack {
-                ForEach(0..<4) {i in
+                ForEach(0..<self.colors.count, id: \.self) { i in
                     ColorCard(reader:reader, i:i, colors: self.$colors, offset: self.$offset, tappedLocation: self.$tappedLocation, locationDragged:self.$locationDragged, tapped: self.$tapped, dragging: self.$dragging)
                 }
             }
         }
         .animation(.spring())
-        
+
     }
 }
 
@@ -53,15 +69,14 @@ struct ColorCard: View {
             VStack {
                 self.colors[i]
             }
-            .frame(width: reader.size.width - 80, height: 300).cornerRadius(20).shadow(radius: 20)
+            .frame(width: reader.size.width - 80 - 100, height: 300).cornerRadius(20).shadow(radius: 20)
                 
             .offset(y: (self.locationDragged == i) ? self.offset.height : CGFloat(i) * self.offset.height / 4)
                 //                        .offset(y: (30 * CGFloat(i)))
                 .offset(y: (self.tapped && self.tappedLocation != i) ? 700 : 0)
-                .position(x: reader.size.width / 2, y: (self.tapped && self.tappedLocation == i) ? 150 : reader.size.height / 2)
+                .position(x: reader.size.width / 2, y: (self.tapped && self.tappedLocation == i) ? 150 + 100 : reader.size.height / 2)
                 
-                .onTapGesture() {
-                    //show card
+                .onTapGesture() { //Show the card
                     self.tapped.toggle()
                     self.tappedLocation = self.i
             }
@@ -70,7 +85,7 @@ struct ColorCard: View {
                 DragGesture()
                     .onChanged { gesture in
                         self.locationDragged = self.i
-                        print(self.i)
+//                        print(self.i)
                         self.offset = gesture.translation
                         self.dragging = true
                 }
