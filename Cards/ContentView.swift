@@ -28,18 +28,64 @@ struct ContentView: View {
         Color(hex: 0x191970),
         Color(hex: 0x7B68EE),
         Color(hex: 0x6A5ACD),
-        Color(hex: 0x483D8B)
+        Color(hex: 0x483D8B),
+        
+        Color(hex: 0xE6E6FA),
+        Color(hex: 0xD8BFD8),
+        Color(hex: 0xDDA0DD),
+        Color(hex: 0xEE82EE),
+        Color(hex: 0xDA70D6),
+        Color(hex: 0xFF00FF),
+        Color(hex: 0xBA55D3),
+        Color(hex: 0x9370DB),
+        Color(hex: 0x8A2BE2),
+        Color(hex: 0x9400D3),
+        Color(hex: 0x9932CC),
+        Color(hex: 0x8B008B),
+        Color(hex: 0x800080),
+        Color(hex: 0x4B0082),
+        
+        Color(hex: 0xFFFFE0),
+        Color(hex: 0xFFFACD),
+        Color(hex: 0xFAFAD2),
+        Color(hex: 0xFFEFD5),
+        Color(hex: 0xFFE4B5),
+        Color(hex: 0xFFDAB9),
+        Color(hex: 0xEEE8AA),
+        Color(hex: 0xF0E68C),
+        Color(hex: 0xBDB76B),
+        Color(hex: 0xFFFF00),
+        
+        Color(hex: 0xFFA07A),
+        Color(hex: 0xFA8072),
+        Color(hex: 0xE9967A),
+        Color(hex: 0xF08080),
+        Color(hex: 0xCD5C5C),
+        Color(hex: 0xDC143C),
+        Color(hex: 0xB22222),
+        Color(hex: 0xFF0000),
+        Color(hex: 0x8B0000),
+        Color(hex: 0xFF7F50),
+        Color(hex: 0xFF7F50),
+        Color(hex: 0xFF4500),
+        Color(hex: 0xFFD700),
+        Color(hex: 0xFFA500),
+        Color(hex: 0xFF8C00)
+        
     ]
-    @State var lastCardColor = Color.clear; @State var newCardColor = Color.clear
+    @State var hexColorsUsed: [Color] = []
+//    @State var lastCardColor = Color.clear;
+    @State var newCardColor = Color.clear
     @State var colors: [Color] = [.red, .blue, .green, .yellow]
     var body: some View {
         HStack {
             Button(action:{
                 //Avoid duplicating the same color twice in a row
+                if(self.hexColorsUsed.count >= self.hexColors.count){self.hexColorsUsed = []}
                 self.newCardColor = self.hexColors.randomElement()!
-                while(self.newCardColor == self.lastCardColor) {
+                while(self.hexColorsUsed.contains(self.newCardColor)) {
                     self.newCardColor = self.hexColors.randomElement()!
-                };self.lastCardColor = self.newCardColor
+                };self.hexColorsUsed.append(self.newCardColor)
                 
                 self.colors.append(self.newCardColor) //insert at front
                 /* self.colors.insert(self.newCardColor.randomElement()!, at: 0) //insert at back */
