@@ -10,28 +10,48 @@ import SwiftUI
 
 struct ContentView: View {
     @State var allMainColors:[Color] = [.red, .blue, .black, .orange, .yellow, .green, .purple, .gray, .white]
+    @State var hexColors: [Color] = [
+        Color(hex: 0xB0E0E6),
+        Color(hex: 0xADD8E6),
+        Color(hex: 0x87CEFA),
+        Color(hex: 0x87CEEB),
+        Color(hex: 0x00BFFF),
+        Color(hex: 0xB0C4DE),
+        Color(hex: 0x1E90FF),
+        Color(hex: 0x6495ED),
+        Color(hex: 0x4682B4),
+        Color(hex: 0x4169E1),
+        Color(hex: 0x0000FF),
+        Color(hex: 0x0000CD),
+        Color(hex: 0x00008B),
+        Color(hex: 0x000080),
+        Color(hex: 0x191970),
+        Color(hex: 0x7B68EE),
+        Color(hex: 0x6A5ACD),
+        Color(hex: 0x483D8B)
+    ]
     @State var lastCardColor = Color.clear; @State var newCardColor = Color.clear
     @State var colors: [Color] = [.red, .blue, .green, .yellow]
     var body: some View {
-            HStack {
-                Button(action:{
-                    //Avoid duplicating the same color twice in a row
-                    self.newCardColor = self.allMainColors.randomElement()!
-                    while(self.newCardColor == self.lastCardColor) {
-                        self.newCardColor = self.allMainColors.randomElement()!
-                    };self.lastCardColor = self.newCardColor
-                    
-                    self.colors.append(self.newCardColor) //insert at front
-                    /* self.colors.insert(self.newCardColor.randomElement()!, at: 0) //insert at back */
-                }) {
-                    Text("+")
-                }.offset(x: 730, y: -260)
-                VStack {
-                    CardView(colors: self.$colors)
-                }
+        HStack {
+            Button(action:{
+                //Avoid duplicating the same color twice in a row
+                self.newCardColor = self.hexColors.randomElement()!
+                while(self.newCardColor == self.lastCardColor) {
+                    self.newCardColor = self.hexColors.randomElement()!
+                };self.lastCardColor = self.newCardColor
+                
+                self.colors.append(self.newCardColor) //insert at front
+                /* self.colors.insert(self.newCardColor.randomElement()!, at: 0) //insert at back */
+            }) {
+                Text("+")
+            }.offset(x: 730, y: -260)
+            VStack {
+                CardView(colors: self.$colors)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .position(x: 370, y: 300)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .position(x: 370, y: 300)
     }
 }
 
@@ -51,7 +71,7 @@ struct CardView: View {
             }
         }
         .animation(.spring())
-
+        
     }
 }
 
@@ -70,11 +90,9 @@ struct ColorCard: View {
                 self.colors[i]
             }
             .frame(width: reader.size.width - 80 - 100, height: 300).cornerRadius(20).shadow(radius: 20)
-                
-            .offset(y: (self.locationDragged == i) ? self.offset.height : CGFloat(i) * self.offset.height / 4)
-                //                        .offset(y: (30 * CGFloat(i)))
-                .offset(y: (self.tapped && self.tappedLocation != i) ? 700 : 0)
-                .position(x: reader.size.width / 2, y: (self.tapped && self.tappedLocation == i) ? 150 + 100 : reader.size.height / 2)
+            .offset(y: (self.locationDragged == i) ? CGFloat(i) * self.offset.height / 4 : CGFloat(i) * self.offset.height / 4)
+            .offset(y: (self.tapped && self.tappedLocation != i) ? 700 : 0)
+            .position(x: reader.size.width / 2, y: (self.tapped && self.tappedLocation == i) ? -(30 * CGFloat(i)) + 300 : reader.size.height / 2)
                 
                 .onTapGesture() { //Show the card
                     self.tapped.toggle()
@@ -85,7 +103,7 @@ struct ColorCard: View {
                 DragGesture()
                     .onChanged { gesture in
                         self.locationDragged = self.i
-//                        print(self.i)
+                        //                        print(self.i)
                         self.offset = gesture.translation
                         self.dragging = true
                 }
@@ -97,12 +115,30 @@ struct ColorCard: View {
                 }
             )
         }.offset(y: (30 * CGFloat(i)))
-
+        
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+//Hex support
+extension Color {
+    init(hex: Int, alpha: Double = 1) {
+        let components = (
+            R: Double((hex >> 16) & 0xff) / 255,
+            G: Double((hex >> 08) & 0xff) / 255,
+            B: Double((hex >> 00) & 0xff) / 255
+        )
+        self.init(
+            .sRGB,
+            red: components.R,
+            green: components.G,
+            blue: components.B,
+            opacity: alpha
+        )
     }
 }
